@@ -175,7 +175,7 @@ const PaymentPage = ({ username }) => {
           @{username}
         </div>
         <div className="text-slate-300">
-          Lets help {username} get a chai !!
+          Lets help {username} to get a chai !!
         </div>
         <div className="text-slate-400">
           {payments.length} Payments . ₹{payments.reduce((a, b) => a + b.amount, 0)} raised

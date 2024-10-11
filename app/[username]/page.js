@@ -13,8 +13,6 @@ const Username = async ({ params }) => {
     throw notFound();
   }
 
-
-
   return (
     <>
       <PaymentPage username={params.username} />

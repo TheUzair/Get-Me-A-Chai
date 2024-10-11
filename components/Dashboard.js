@@ -21,7 +21,6 @@ const Dashboard = () => {
     razorpaySecret: '',
   });
 
-  // State to handle visibility of sensitive fields
   const [showEmail, setShowEmail] = useState(false);
   const [showRazorpayKey, setShowRazorpayKey] = useState(false);
   const [showRazorpaySecret, setShowRazorpaySecret] = useState(false);
@@ -42,7 +41,7 @@ const Dashboard = () => {
     let u = await fetchUser(session.user.name);
     if (!u) {
       console.warn('No user found');
-      return null; // Handle the error, maybe redirect or show a message
+      return null; // Handle the error, or redirect or show a message
     }
 
     setFormData({
@@ -70,7 +69,6 @@ const Dashboard = () => {
 
     let result = await updateProfile(formData, session.user.name);
 
-    //test it
     if (result?.error) {
       toast.error(result.error, {
         position: "top-right",
@@ -117,7 +115,6 @@ const Dashboard = () => {
           <h2 className="text-2xl font-semibold text-center mb-6">Welcome to your Dashboard</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name Field */}
             <div>
               <label className="block text-gray-400">Name</label>
               <input
@@ -130,7 +127,6 @@ const Dashboard = () => {
               />
             </div>
 
-            {/* Email Field with visibility toggle */}
             <div>
               <label className="block text-gray-400">Email</label>
               <div className="relative">
@@ -157,7 +153,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Username Field */}
             <div>
               <label className="block text-gray-400">Username</label>
               <input
@@ -170,7 +165,6 @@ const Dashboard = () => {
               />
             </div>
 
-            {/* Profile Picture Field */}
             <div>
               <label className="block text-gray-400">Profile Picture URL</label>
               <input
@@ -183,7 +177,6 @@ const Dashboard = () => {
               />
             </div>
 
-            {/* Cover Picture Field */}
             <div>
               <label className="block text-gray-400">Cover Picture URL</label>
               <input
@@ -196,7 +189,6 @@ const Dashboard = () => {
               />
             </div>
 
-            {/* Razorpay Key Field with visibility toggle */}
             <div>
               <label className="block text-gray-400">Razorpay Key</label>
               <div className="relative">
@@ -223,7 +215,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Razorpay Secret Field with visibility toggle */}
             <div>
               <label className="block text-gray-400">Razorpay Secret</label>
               <div className="relative">
@@ -250,7 +241,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Save Button */}
             <div className="text-center">
               <button
                 type="submit"
