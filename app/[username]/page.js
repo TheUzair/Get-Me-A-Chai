@@ -8,7 +8,7 @@ const Username = async ({ params }) => {
   await connectDB()
   let existingUser  = await User.findOne({ userName: params.username })
 
-  // If user is not found, throw a 404 error
+  // If a user is not found, throw a 404 error
   if (!existingUser ) {
     throw notFound();
   }
