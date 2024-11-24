@@ -24,7 +24,7 @@ const Login = () => {
 	<div className='text-white py-14 container mx-auto'>
 		<h1 className='text-center font-bold text-3xl'>Login to get started</h1>
 		<div className="flex flex-col gap-2 min-h-screen p-10 items-center">
-			<button
+			<button onClick={() => {signIn("google")}}
 				className="flex items-center w-64 bg-white text-black border border-gray-300 rounded-lg shadow-md max-w-xs px-6 py-2 text-sm font-medium text-white-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
 				<svg className="h-6 w-6 mr-2" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink"
 					viewBox="-0.5 0 48 48" version="1.1">
@@ -51,7 +51,7 @@ const Login = () => {
 				<span>Continue with Google</span>
 			</button>
 
-			<button
+			<button onClick={() => {signIn("linkedin")}}
 				className="flex items-center w-64 bg-white text-black  border border-gray-300 rounded-lg shadow-md max-w-xs px-6 py-2 text-sm font-medium text-white-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
 				<svg className="h-6 w-6 mr-2" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink"
 					viewBox="0 -2 44 44" version="1.1">

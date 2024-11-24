@@ -76,7 +76,7 @@ To run this application locally, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/Get-Me-A-Chai.git
+   git clone https://github.com/TheUzair/Get-Me-A-Chai.git
    cd Get-Me-A-Chai
    ```
 

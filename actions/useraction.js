@@ -8,8 +8,8 @@ export const initiate = async (amount, to_username, paymentform) => {
   await connectDB(); // Ensure DB connection
 
   // Fetch the secret of the user who is accepting the paymnet
-	let owner = await User.findOne({ userName: to_username})
-	const ownerSecret = owner.razorpaySecret
+  let owner = await User.findOne({ userName: to_username })
+  const ownerSecret = owner.razorpaySecret
 
   try {
     const instance = new Razorpay({
@@ -31,7 +31,7 @@ export const initiate = async (amount, to_username, paymentform) => {
 
     // Create a payment record in the database
     await Payment.create({
-      order_id: order.id, // Store the correct order_id
+      order_id: order.id,
       amount: amount,
       to_user: to_username,
       name: paymentform.name,
@@ -45,11 +45,12 @@ export const initiate = async (amount, to_username, paymentform) => {
 };
 
 
-export const fetchUser = async (to_username) => {
+export const fetchUser = async (email) => {
   await connectDB(); // Ensure DB connection
 
-  // Find the user by username
-  const userRecord = await User.findOne({ userName: to_username });
+  // Find the user by email
+  const userRecord = await User.findOne({ email });
+
 
   // Check if the user exists
   if (!userRecord) {
@@ -86,7 +87,7 @@ export const updateProfile = async (data, oldUsername) => {
     // Use upsert to update if exists, insert if not
     const result = await User.updateOne(
       { email: ndata.email },  // Use email as the unique identifier
-      { 
+      {
         $set: {
           name: ndata.name,        // Assuming `name` is part of the profile
           userName: ndata.username,
@@ -98,7 +99,7 @@ export const updateProfile = async (data, oldUsername) => {
       },
       { upsert: true }  // This will insert if no document matches the query
     );
-    
+
 
     // Return success status or a message if the update/insert was successful
     if (result.upsertedCount > 0) {

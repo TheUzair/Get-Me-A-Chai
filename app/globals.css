@@ -5,3 +5,9 @@
 .invertImg {
 	filter: invert(0.21);
 }
+
+@media (min-width: 320px) and (max-width: 375px) {
+  .custom-gap {
+    gap: 10px;
+  }
+}

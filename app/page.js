@@ -8,7 +8,7 @@ export default function Home() {
 				<h1 className="text-5xl font-bold flex items-center gap-2">
 					Buy Me a Chai
 					<span>
-						<Image className="invertImg" src="/tea.gif" alt="tea" width={64} height={64} unoptimized/>
+						<Image className="invertImg" src="/tea.gif" alt="tea" width={64} height={64} unoptimized priority/>
 					</span>
 				</h1>
 				<p className="text-center max-w-xl text-lg">
@@ -29,7 +29,7 @@ export default function Home() {
 
 			</div>
 
-			<div className="bg-white h-[1px] opacity-10 my-6"></div>
+			<div className="bg-white h-[1px] opacity-10 my-9"></div>
 
 			<div className="container mx-auto text-white py-16">
 				<h2 className="text-3xl font-bold text-center mb-10">How Fans Can Support You</h2>
@@ -58,7 +58,7 @@ export default function Home() {
 				</div>
 			</div>
 
-			<div className="bg-white h-[1px] opacity-10 my-5"></div>
+			<div className="bg-white h-[1px] opacity-10 my-6"></div>
 
 			<div className="container mx-auto text-white py-16">
 				<h2 className="text-3xl font-bold text-center mb-10">Learn More About Us</h2>

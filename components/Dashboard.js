@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
 
 const Dashboard = () => {
+  
   const { data: session, status, update } = useSession();
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -20,7 +21,8 @@ const Dashboard = () => {
     razorpayKey: '',
     razorpaySecret: '',
   });
-
+  
+  console.log("Session Data:", session);
   const [showEmail, setShowEmail] = useState(false);
   const [showRazorpayKey, setShowRazorpayKey] = useState(false);
   const [showRazorpaySecret, setShowRazorpaySecret] = useState(false);
@@ -30,31 +32,51 @@ const Dashboard = () => {
     getData();
     if (!session) {
       router.push('/login?redirect=/dashboard');
+      return;
     }
+    getData();
   }, [session, status, router]);
 
   if (status === 'loading') {
     return <div>Loading...</div>;
   }
-
+  
   const getData = async () => {
-    let u = await fetchUser(session.user.name);
-    if (!u) {
-      console.warn('No user found');
-      return null; // Handle the error, or redirect or show a message
+    if (!session?.user?.email) {
+      console.warn('No session or user email available');
+      router.push('/login?redirect=/dashboard');
+      return;
     }
-
-    setFormData({
-      name: u.name || '',
-      email: u.email || '',
-      username: u.userName || '',
-      profilePic: u.profilePic || '',
-      coverPic: u.coverPic || '',
-      razorpayKey: u.razorpayKey || '',
-      razorpaySecret: u.razorpaySecret || ''
-    });
+  
+    try {
+      const user = await fetchUser(session.user.email);
+      if (!user) {
+        console.warn('No user found');
+        toast.error('User not found', {
+          position: "top-right",
+          transition: Bounce
+        });
+        return;
+      }
+  
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        username: user.userName || '',
+        profilePic: user.profilePic || '',
+        coverPic: user.coverPic || '',
+        razorpayKey: user.razorpayKey || '',
+        razorpaySecret: user.razorpaySecret || '',
+      });
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      toast.error('Error loading user data', {
+        position: "top-right",
+        transition: Bounce
+      });
+    }
   };
-
+ 
   const handleChange = (e) => {
     setFormData({
       ...formData,

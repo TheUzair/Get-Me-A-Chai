@@ -1,18 +1,16 @@
-import mongoose from "mongoose"
 import NextAuth from "next-auth"
 // import Appleprovider from 'next-auth/providers/apple'
 // import FacebookProvider from 'next-auth/providers/facebook'
-// import GoogleProvider from 'next-auth/providers/google'
-// import EmailProvider from 'next-auth/providers/email'
 // import TwitterProvider from "next-auth/providers/twitter"
+// import EmailProvider from 'next-auth/providers/email'
+import GoogleProvider from 'next-auth/providers/google'
 import GithubProvider from "next-auth/providers/github"
+import LinkedInProvider from "next-auth/providers/linkedin";
 import User from "@/models/User"
-import Payment from "@/models/Payment"
 import connectDB from "@/db/connectDB"
 
-
-
 const authOptions = NextAuth({
+  debug: true,
   // Configure one or more authentication providers
   providers: [
     GithubProvider({
@@ -27,10 +25,20 @@ const authOptions = NextAuth({
     //     clientId: process.env.FACEBOOK_ID,
     //     clientSecret: process.env.FACEBOOK_SECRET
     // }),
-    // GoogleProvider({
-    //     clientId: process.env.GOOGLE_ID,
-    //     clientSecret: process.env.GOOGLE_SECRET
-    // }),
+    GoogleProvider({
+        clientId: process.env.GOOGLE_ID,
+        clientSecret: process.env.GOOGLE_SECRET
+    }),
+    LinkedInProvider({
+      clientId: process.env.LINKEDIN_CLIENT_ID,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
+      authorization: {
+        params: {
+          scope: "r_liteprofile r_emailaddress",
+        },
+      },
+    })
+    
     // // Passwordless / email sign in
     // EmailProvider({
     //     server: process.env.MAIL_SERVER,
@@ -51,19 +59,19 @@ const authOptions = NextAuth({
       await connectDB();
 
       // Check if the user already exists in the database
-      let existingUser = await User.findOne({ email });
+      const existingUser = await User.findOne({ email: user.email });
 
       // If the user does not exist, create a new user
       if (!existingUser) {
         try {
-          existingUser = new User({
+          newUser = new User({
             name: profile.name || user.name || '',
-            userName,
-            email,
-            profilePic: profile.avatar_url || '',
+            userName: profile.given_name || 'defaultUsername',
+            email: user.email,
+            profilePic: profile.avatar_url || user.image || '',
             coverPic: '', // Add any default or extracted coverPic if needed
           });
-          await existingUser.save();
+          await newUser.save();
         } catch (err) {
           throw new Error('User validation failed');
         }
