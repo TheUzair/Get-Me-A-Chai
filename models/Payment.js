@@ -13,7 +13,7 @@ const PaymentSchema = new Schema({
   done: { type: Boolean, default: false },
 });
 
-mongoose.connect('mongodb://localhost:27017/patreon', {
+mongoose.connect(process.env.MONGO_URI, {
 });
 
 export default mongoose.models.Payment || model("Payment", PaymentSchema);
