@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';  // Use default import instead of '* as mongoose'
+import mongoose from 'mongoose';
 
 const { Schema, model } = mongoose;
 
@@ -13,7 +13,7 @@ const PaymentSchema = new Schema({
   done: { type: Boolean, default: false },
 });
 
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/patreon', {
 });
 
 export default mongoose.models.Payment || model("Payment", PaymentSchema);

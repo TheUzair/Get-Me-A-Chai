@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import Image from 'next/image';
 import Script from 'next/script';
 import { initiate, fetchUser, fetchPayments } from '@/actions/useraction';
 import { useSession } from 'next-auth/react';
@@ -21,15 +22,35 @@ const PaymentPage = ({ username }) => {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  useEffect(() => {
-    getData()
-  }, [searchParams])
 
+  const getData = useCallback(async () => {
+    let user = await fetchUser(username);
 
-  // why 6 toast are showing up after payment has been done!! why 6?
+    if (user) {
+      setCurrentUser(user);
+      let dbPayments = await fetchPayments(username);
+      setPayments(dbPayments);
+    } else {
+      toast.warn("No user found, payments will not be fetched.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  }, [username]);
+
   useEffect(() => {
-    if (searchParams.get("paymentdone") == "true") {
-      toast('Thanks a lot!', {
+    getData();
+  }, [getData, searchParams]);
+
+  useEffect(() => {
+    if (searchParams.get("paymentdone") === "true") {
+      toast("Thanks a lot!", {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -40,10 +61,9 @@ const PaymentPage = ({ username }) => {
         theme: "light",
         transition: Bounce,
       });
+      router.push(`/${username}`);
     }
-    router.push(`/${username}`)
-  })
-
+  }, [searchParams, router, username]);
 
   const handleChange = (e) => {
     setPaymentForm({ ...paymentform, [e.target.name]: e.target.value });
@@ -54,24 +74,6 @@ const PaymentPage = ({ username }) => {
   const isValidMessage = paymentform.message.length >= 6;
 
   const isValidAmount = paymentform.amount >= 1 && paymentform.amount <= 500000;
-
-  const getData = async () => {
-    console.log("Fetching user with username:", username);
-    let user = await fetchUser(username);
-
-    // Check if user data is returned
-    if (user) {
-      setCurrentUser(user);
-      console.log("Fetched user:", user);
-
-      let dbPayments = await fetchPayments(username);
-      console.log("Fetched payments:", dbPayments);
-      setPayments(dbPayments);
-    } else {
-      console.warn("No user found, payments will not be fetched.");
-    }
-  };
-
 
   const pay = async (amount) => {
     if (!amount || isNaN(amount) || amount <= 0) {
@@ -149,7 +151,7 @@ const PaymentPage = ({ username }) => {
   const lockScroll = () => {
     document.body.style.overflow = "hidden";
   };
-  
+
   const unlockScroll = () => {
     document.body.style.overflow = "";
   };
@@ -157,12 +159,11 @@ const PaymentPage = ({ username }) => {
   // Lock scroll when focusing on inputs
   const handleFocus = () => lockScroll();
   const handleBlur = () => unlockScroll();
-  
+
   useEffect(() => {
-    
-    return unlockScroll; // Clean up on unmount
+    return () => unlockScroll();
   }, []);
-  
+
   return (
     <>
       <ToastContainer
@@ -180,10 +181,22 @@ const PaymentPage = ({ username }) => {
       <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
 
       <div className='cover w-full relative'>
-        <img className="object-cover w-full h-[350px]" src={currentUser.coverPic} alt="cover" />
+        <Image
+          className="object-cover w-full h-[350px]"
+          src={currentUser.coverPic}
+          alt="cover"
+          width={1920} 
+          height={350}
+        />
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
           <div className="flex justify-center items-center border-4 border-white rounded-xl bg-white">
-            <img className='rounded-lg' width={80} height={80} src={currentUser.profilePic} alt="profile" />
+            <Image
+              className="rounded-lg"
+              src={currentUser.profilePic}
+              alt="profile"
+              width={80}
+              height={80}
+            />
           </div>
         </div>
       </div>
@@ -211,7 +224,15 @@ const PaymentPage = ({ username }) => {
               {payments.length == 0 && <li>No payments yet</li>}
               {payments.map((payment, index) => (
                 <li key={index} className="my-4 flex gap-2 items-center">
-                  <img src="user.gif" alt="user_avatar" width={33} /> {/*border-radius = 50%*/}
+                  <Image
+                    src="/user.gif"
+                    alt="user_avatar"
+                    width={33}
+                    height={33}
+                    className="rounded-full"
+                    priority
+                    unoptimized
+                  />
                   <span>
                     {payment.name} donated{" "}
                     <span className="font-bold">₹{payment.amount}</span> with a message: {payment.message}

@@ -1,9 +1,9 @@
 "use client";
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const Login = () => {
+const LoginContent = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -17,7 +17,9 @@ const Login = () => {
   }, [session, router, searchParams]);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
+    </div>;
   }
 
   return (
@@ -151,4 +153,12 @@ const Login = () => {
   )
 }
 
-export default Login
+const Login = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
+  );
+};
+
+export default Login;

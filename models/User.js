@@ -18,6 +18,19 @@ const UserSchema = new Schema({
 	updatedAt: { type: Date, default: Date.now },
 	razorpayKey: { type: String },
 	razorpaySecret: { type: String }
+	}, {
+		timestamps: true, // This will handle createdAt and updatedAt automatically
+		collection: 'users'
 });
 
-export default mongoose.models.User || model("User", UserSchema);
+// Add a serialization method to handle the ObjectId conversion
+UserSchema.set('toJSON', {
+  transform: function(doc, ret) {
+    ret._id = ret._id.toString();
+    return ret;
+  }
+});
+
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
+
+export default User;

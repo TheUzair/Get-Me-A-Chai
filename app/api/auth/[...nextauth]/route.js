@@ -11,7 +11,6 @@ import connectDB from "@/db/connectDB"
 
 const authOptions = NextAuth({
   debug: true,
-  // Configure one or more authentication providers
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID,
@@ -26,8 +25,8 @@ const authOptions = NextAuth({
     //     clientSecret: process.env.FACEBOOK_SECRET
     // }),
     GoogleProvider({
-        clientId: process.env.GOOGLE_ID,
-        clientSecret: process.env.GOOGLE_SECRET
+      clientId: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET
     }),
     LinkedInProvider({
       clientId: process.env.LINKEDIN_CLIENT_ID,
@@ -38,7 +37,7 @@ const authOptions = NextAuth({
         },
       },
     })
-    
+
     // // Passwordless / email sign in
     // EmailProvider({
     //     server: process.env.MAIL_SERVER,
@@ -50,48 +49,50 @@ const authOptions = NextAuth({
     //   }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
-      // GitHub's profile object should have 'login' as the username
-      const userName = profile.login || 'defaultUsername'; // Fallback in case 'login' is missing
-      const email = profile.email || user.email;
-
-      // Ensure database connection is established
-      await connectDB();
-
-      // Check if the user already exists in the database
-      const existingUser = await User.findOne({ email: user.email });
-
-      // If the user does not exist, create a new user
-      if (!existingUser) {
+    callbacks: {
+      async signIn({ user, account, profile }) {
+        const userName = profile.login || 'defaultUsername';
+        const email = profile.email || user.email;
+    
         try {
-          newUser = new User({
-            name: profile.name || user.name || '',
-            userName: profile.given_name || 'defaultUsername',
-            email: user.email,
-            profilePic: profile.avatar_url || user.image || '',
-            coverPic: '', // Add any default or extracted coverPic if needed
-          });
-          await newUser.save();
+          await connectDB();
+          const existingUser = await User.findOne({ email });
+    
+          if (!existingUser) {
+            const newUser = new User({
+              name: profile.name || user.name || '',
+              userName: profile.login || 'defaultUsername',
+              email,
+              profilePic: profile.avatar_url || user.image || '',
+              coverPic: '', 
+            });
+    
+            await newUser.save();
+          }
+          return true; // Proceed with login
         } catch (err) {
-          throw new Error('User validation failed');
+          console.error('Error during signIn:', err.message);
+          return false; // Block login on error
         }
-      }
-      return true; // Proceed with the login process
+      },
     }
+    
   },
   async session({ session, user, token }) {
-    await connectDB();  // Ensure connection before querying
-    // Fetch the user from the database based on the email in session
-    const dbUser = await User.findOne({ email: session.user.email })
-    
-    if (dbUser) {
-      // Attach relevant user data to the session
-      session.user.name = dbUser.username || session.user.name;
-      session.user.id = dbUser._id.toString();  // Attach user ID
+    try {
+      await connectDB();  
+      const dbUser = await User.findOne({ email: session.user.email })
+
+      if (dbUser) {
+        session.user.name = dbUser.username || session.user.name;
+        session.user.id = dbUser._id.toString();  // Attach user ID
+      }
+    } catch (err) {
+      console.error('Error during session:', err.message);
     }
 
     return session;  // Return the modified session
   },
 })
 
-export {authOptions as GET, authOptions as POST}
+export { authOptions as GET, authOptions as POST }

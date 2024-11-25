@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { fetchUser, updateProfile } from '@/actions/useraction';
@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
 
 const Dashboard = () => {
-  
+
   const { data: session, status, update } = useSession();
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -21,44 +21,28 @@ const Dashboard = () => {
     razorpayKey: '',
     razorpaySecret: '',
   });
-  
-  console.log("Session Data:", session);
+
   const [showEmail, setShowEmail] = useState(false);
   const [showRazorpayKey, setShowRazorpayKey] = useState(false);
   const [showRazorpaySecret, setShowRazorpaySecret] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (status === 'loading') return;
-    getData();
-    if (!session) {
-      router.push('/login?redirect=/dashboard');
-      return;
-    }
-    getData();
-  }, [session, status, router]);
-
-  if (status === 'loading') {
-    return <div>Loading...</div>;
-  }
-  
-  const getData = async () => {
+  const getData = useCallback(async () => {
     if (!session?.user?.email) {
-      console.warn('No session or user email available');
       router.push('/login?redirect=/dashboard');
       return;
     }
-  
+
     try {
       const user = await fetchUser(session.user.email);
       if (!user) {
-        console.warn('No user found');
         toast.error('User not found', {
           position: "top-right",
           transition: Bounce
         });
         return;
       }
-  
+
       setFormData({
         name: user.name || '',
         email: user.email || '',
@@ -69,14 +53,34 @@ const Dashboard = () => {
         razorpaySecret: user.razorpaySecret || '',
       });
     } catch (error) {
-      console.error('Error fetching user data:', error);
       toast.error('Error loading user data', {
         position: "top-right",
         transition: Bounce
       });
     }
-  };
- 
+  }, [session, router]);
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (!session) {
+      toast.error('Session expired. Please login again.', {
+        position: "top-right",
+        transition: Bounce
+      });
+      router.push('/login?redirect=/dashboard');
+      return;
+    }
+    
+    setIsLoading(false)
+    getData();
+  }, [session, status, router, getData]); 
+
+  if (isLoading || status === 'loading') {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
+    </div>;
+  }
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -87,7 +91,7 @@ const Dashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     update();
-    console.log("formdata inside handleSubmit:", formData);
+
 
     let result = await updateProfile(formData, session.user.name);
 
