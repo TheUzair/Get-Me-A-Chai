@@ -45,43 +45,60 @@ export const initiate = async (amount, to_username, paymentform) => {
   }
 };
 
-export const fetchUser = async (email) => {
+export const fetchUser = async (identifier) => {
   try {
     await connectDB();
 
     const db = mongoose.connection.useDb('patreon');
     const usersCollection = db.collection('users');
-    
-    const user = await usersCollection.findOne({ email });
 
-    // Serialize the data for client component
+    const user = await usersCollection.findOne({
+      $or: [{ email: identifier }, { userName: identifier }]
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     const serializedUser = {
-      _id: user._id.toString(),
-      name: user.name,
-      userName: user.userName,
-      email: user.email,
-      profilePic: user.profilePic,
-      coverPic: user.coverPic,
-      razorpayKey: user.razorpayKey,
-      razorpaySecret: user.razorpaySecret,
-      createdAt: user.createdAt?.toISOString(),
-      updatedAt: user.updatedAt?.toISOString()
+      _id: user._id?.toString() || "N/A",
+      name: user.name || "No Name",
+      userName: user.userName || "No Username",
+      email: user.email || "No Email",
+      profilePic: user.profilePic || "",
+      coverPic: user.coverPic || "",
+      razorpayKey: user.razorpayKey || "",
+      razorpaySecret: user.razorpaySecret || "",
+      createdAt: user.createdAt?.toISOString() || null,
+      updatedAt: user.updatedAt?.toISOString() || null,
     };
 
     return serializedUser;
-
   } catch (error) {
-    console.error("Error fetching user:", error);
     throw error;
   }
 };
 
 export const fetchPayments = async (to_username) => {
-  await connectDB();
+    try {
+      const payments = await Payment.find({ to_user: to_username, done: true }).lean();
+  
+      const serializedPayments = payments.map((payment) => ({
+        _id: payment._id.toString(),
+        name: payment.name,
+        to_user: payment.to_user,
+        order_id: payment.order_id,
+        message: payment.message,
+        amount: payment.amount,
+        done: payment.done,
+        createdAt: payment.createdAt?.toISOString(),
+        updatedAt: payment.updatedAt?.toISOString(),
+      }));
 
-  // Fetch payments related to the user
-  const payments = await Payment.find({ to_user: to_username, done: true }).sort({ amount: -1 }).limit(10).lean();
-  return payments;
+      return serializedPayments;
+    } catch (error) {
+      throw new Error("Failed to fetch payments");
+    }
 };
 
 export const updateProfile = async (data, oldUsername) => {

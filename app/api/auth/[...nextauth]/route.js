@@ -49,50 +49,47 @@ const authOptions = NextAuth({
     //   }),
   ],
   callbacks: {
-    callbacks: {
-      async signIn({ user, account, profile }) {
-        const userName = profile.login || 'defaultUsername';
-        const email = profile.email || user.email;
-    
-        try {
-          await connectDB();
-          const existingUser = await User.findOne({ email });
-    
-          if (!existingUser) {
-            const newUser = new User({
-              name: profile.name || user.name || '',
-              userName: profile.login || 'defaultUsername',
-              email,
-              profilePic: profile.avatar_url || user.image || '',
-              coverPic: '', 
-            });
-    
-            await newUser.save();
-          }
-          return true; // Proceed with login
-        } catch (err) {
-          console.error('Error during signIn:', err.message);
-          return false; // Block login on error
+    async signIn({ user, account, profile }) {
+      const userName = profile.login || 'defaultUsername';
+      const email = profile.email || user.email;
+
+      try {
+        await connectDB();
+        const existingUser = await User.findOne({ email });
+
+        if (!existingUser) {
+          const newUser = new User({
+            name: profile.name || user.name || '',
+            userName: profile.login || 'defaultUsername',
+            email,
+            profilePic: profile.avatar_url || user.image || '',
+            coverPic: '',
+          });
+
+          await newUser.save();
         }
-      },
-    }
-    
-  },
-  async session({ session, user, token }) {
-    try {
-      await connectDB();  
-      const dbUser = await User.findOne({ email: session.user.email })
-
-      if (dbUser) {
-        session.user.name = dbUser.username || session.user.name;
-        session.user.id = dbUser._id.toString();  // Attach user ID
+        return true; // Proceed with login
+      } catch (err) {
+        console.error('Error during signIn:', err.message);
+        return false; // Block login on error
       }
-    } catch (err) {
-      console.error('Error during session:', err.message);
-    }
+    },
+    async session({ session, user, token }) {
+      try {
+        await connectDB();
+        const dbUser = await User.findOne({ email: session.user.email })
 
-    return session;  // Return the modified session
-  },
+        if (dbUser) {
+          session.user.name = dbUser.username || session.user.name;
+          session.user.id = dbUser._id.toString();  // Attach user ID
+        }
+      } catch (err) {
+        console.error('Error during session:', err.message);
+      }
+
+      return session;  // Return the modified session
+    }
+  }
 })
 
 export { authOptions as GET, authOptions as POST }
