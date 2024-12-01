@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import connectDB from '@/db/connectDB';
 import User from '@/models/User';
 
+export const dynamic = 'force-dynamic';
 const Username = async ({ params }) => {
   try {
     await connectDB();

@@ -11,3 +11,9 @@
     gap: 10px;
   }
 }
+
+.custom-background {
+  background-color: #000000;
+  background-image: radial-gradient(circle at center, #ffffff33 1px, #00091d 1px);
+  background-size: 20px 20px;
+}

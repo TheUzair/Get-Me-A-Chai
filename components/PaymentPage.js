@@ -186,6 +186,7 @@ const PaymentPage = ({ username }) => {
           alt="cover"
           width={1920} 
           height={350}
+          priority
         />
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
           <div className="flex justify-center items-center border-4 border-white rounded-xl bg-white">

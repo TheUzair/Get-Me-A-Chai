@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "prod-test": "NODE_ENV=production npm run build && npm run start",
+    "vercel-prod": "vercel build && vercel dev --prod"
   },
   "dependencies": {
     "autoprefixer": "^10.4.20",
