@@ -1,6 +1,5 @@
 import React from 'react';
 import PaymentPage from '@/components/PaymentPage';
-import FallbackPage from '@/components/FallbackPage';
 import { notFound } from 'next/navigation';
 import connectDB from '@/db/connectDB';
 import User from '@/models/User';
