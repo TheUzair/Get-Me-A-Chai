@@ -22,7 +22,6 @@ const PaymentPage = ({ username }) => {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-
   const getData = useCallback(async () => {
     let user = await fetchUser(username);
 
