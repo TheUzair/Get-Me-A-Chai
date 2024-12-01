@@ -8,21 +8,21 @@ export const dynamic = 'force-dynamic';
 
 const Username = async ({ params }) => {
   try {
-    console.log("Params username:", params.username);
-    
     await connectDB();
-    console.log("Database connected successfully!");
+    console.log("MongoDB connected");
 
+    // Debugging: Case insensitive search for the username
     const existingUser = await User.findOne({
-      userName: { $regex: new RegExp(`^${params.username}$`, 'i') },
+      userName: { $regex: new RegExp("^" + params.username + "$", "i") }
     });
-    console.log("Existing user:", existingUser);
+
+    console.log('Querying user with username:', params.username);
+    console.log('Database response:', existingUser);
 
     if (existingUser) {
       return <PaymentPage username={params.username} />;
     }
 
-    console.log(`User not found: ${params.username}`);
     return notFound();
   } catch (error) {
     console.error("Error in Username component:", error);
